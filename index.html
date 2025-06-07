@@ -1,95 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Crypto Portfolio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0d1117;
-      color: #e6edf3;
-      margin: 0;
-      padding: 2rem;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Live Crypto Portfolio</title>
+    <!-- Google Fonts - Poppins for a modern, clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define CSS Variables for easy theme customization */
+        :root {
+            --bg-color: #0d1117; /* Dark background, typical for crypto themes */
+            --card-bg: #161b22; /* Slightly lighter dark for cards */
+            --border-color: #30363d; /* Subtle borders */
+            --text-color: #e6edf3; /* Light text for readability */
+            --header-color: #58a6ff; /* Vibrant blue for headers */
+            --gain-color: #3fb950; /* Green for gains */
+            --loss-color: #f85149; /* Red for losses */
+            --accent-color: #58a6ff; /* General accent color */
+            --hover-bg: #1f252d; /* Darker background on hover */
+            --shadow-color: rgba(0, 0, 0, 0.6); /* Deeper shadows */
+            --button-bg: #21262d;
+            --button-border: #30363d;
+            --button-hover-bg: #282e36;
+            --button-active-bg: #58a6ff;
+            --button-active-text: #fff;
+        }
 
-    h1 {
-      text-align: center;
-      color: #58a6ff;
-    }
+        body {
+            font-family: 'Poppins', sans-serif; /* Apply Poppins font */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+        }
 
-    #portfolio {
-      display: grid;
-      gap: 1rem;
-      max-width: 800px;
-      margin: auto;
-    }
+        h1 {
+            text-align: center;
+            color: var(--header-color);
+            margin-bottom: 1.5rem;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            /* Gradient text effect for a modern crypto feel */
+            background: linear-gradient(90deg, #58a6ff, #8a63ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    .card {
-      background-color: #161b22;
-      padding: 1rem 1.5rem;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      border: 1px solid #30363d;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-    }
+        /* Main container for the entire portfolio content */
+        #portfolio-container {
+            width: 100%;
+            max-width: 1000px; /* Max width for larger screens */
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 20px var(--shadow-color);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Space between summary and grid */
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #3fb950;
-    }
-  </style>
+        .timestamp {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #8b949e;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Currency selector buttons container */
+        #currency-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .currency-button {
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--button-border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .currency-button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .currency-button.active {
+            background-color: var(--button-active-bg);
+            border-color: var(--button-active-bg);
+            color: var(--button-active-text);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Grid for individual cryptocurrency cards */
+        #portfolio-grid {
+            display: grid;
+            /* Responsive grid: auto-fit creates as many columns as fit, min 280px */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem; /* Space between cards */
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.2rem 1.8rem;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            /* Smooth transitions for interactive effects */
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px); /* Lift card on hover */
+            box-shadow: 0 8px 25px var(--shadow-color); /* Enhanced shadow on hover */
+            background-color: var(--hover-bg); /* Darker background on hover */
+        }
+
+        .card strong {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 0.3rem;
+            display: block; /* Ensure strong is block for proper spacing */
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .row:first-child {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .gain {
+            color: var(--gain-color);
+            font-weight: 600;
+        }
+
+        .loss {
+            color: var(--loss-color);
+            font-weight: 600;
+        }
+
+        .currency-value {
+            font-weight: 600;
+            color: #c9d1d9; /* Slightly lighter text for currency values */
+        }
+
+        .price-info {
+            font-size: 0.85rem;
+            color: #8b949e; /* Muted color for less important info */
+        }
+
+        .change-24h {
+            font-weight: 600;
+        }
+
+        .center {
+            text-align: center;
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        /* Adjust summary section for better layout */
+        .summary-section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--gain-color);
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .summary-values {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 1.5rem; /* Space between currency totals */
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .summary-values span {
+            display: inline-block; /* Allow items to sit next to each other */
+            padding: 0 0.5rem; /* Add some padding around each value */
+        }
+
+        .summary-profit-loss {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 1rem; /* Space above profit/loss */
+            font-weight: 600;
+        }
+
+        .summary-invested {
+            text-align: center;
+            color: #8b949e;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Loading message style */
+        .loading-message {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            padding: 50px 0;
+        }
+
+        /* Separator line style */
+        hr {
+            border: none;
+            border-top: 1px dashed var(--border-color); /* Dashed line for subtle separation */
+            margin: 2rem 0;
+        }
+
+        /* Responsive Design using Media Queries */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem; /* Reduce padding on smaller screens */
+            }
+
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 1rem;
+            }
+
+            #portfolio-container {
+                padding: 1rem; /* Reduce container padding */
+            }
+
+            #currency-selector {
+                flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            }
+
+            #portfolio-grid {
+                grid-template-columns: 1fr; /* Stack cards vertically on tablets */
+            }
+
+            .card {
+                padding: 1rem 1.2rem;
+            }
+
+            .summary-section h2 {
+                font-size: 1.6rem;
+            }
+
+            .summary-values {
+                font-size: 1.1rem;
+                gap: 1rem;
+            }
+
+            .summary-profit-loss {
+                font-size: 1rem;
+            }
+
+            .summary-invested {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .timestamp {
+                font-size: 0.85rem;
+            }
+            .card strong {
+                font-size: 1.1rem;
+            }
+            .row {
+                font-size: 0.9rem;
+            }
+            .price-info {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>My Crypto Portfolio</h1>
-  <div id="portfolio">Loading...</div>
+    <h1>My Live Crypto Portfolio</h1>
+    <div class="timestamp" id="lastUpdated">Last updated: -- (updates every 30 seconds)</div>
 
-  <script>
-    const portfolio = [
-      { id: "bitcoin", symbol: "BTC", amount: 0.5 },
-      { id: "ethereum", symbol: "ETH", amount: 1.2 },
-      { id: "solana", symbol: "SOL", amount: 10 }
-    ];
+    <!-- Currency selection buttons -->
+    <div id="currency-selector">
+        <button class="currency-button active" data-currency="inr">INR</button>
+        <button class="currency-button" data-currency="usd">USD</button>
+        <button class="currency-button" data-currency="gbp">GBP</button>
+    </div>
 
-    const ids = portfolio.map(c => c.id).join(",");
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        let html = "";
-        let totalValue = 0;
-
-        portfolio.forEach(c => {
-          const info = data[c.id];
-          const currentPrice = info.usd;
-          const change = info.usd_24h_change;
-          const value = currentPrice * c.amount;
-          totalValue += value;
-
-          html += `
-            <div class="card">
-              <div>
-                <strong>${c.symbol}</strong><br>
-                ${c.amount} ${c.symbol}
-              </div>
-              <div>
-                $${value.toFixed(2)}<br>
-                ($${currentPrice.toFixed(2)} | ${change.toFixed(2)}%)
-              </div>
+    <div id="portfolio-container">
+        <!-- Loading message displayed while fetching data -->
+        <div id="portfolio-loading" class="loading-message">Loading live data...</div>
+        <!-- Content section, hidden until data is loaded -->
+        <div id="portfolio-content" style="display: none;">
+            <div class="summary-section">
+                <h2>Total Portfolio Value</h2>
+                <div class="summary-values">
+                    <span id="totalUSD"></span>
+                    <span id="totalINR"></span>
+                    <span id="totalGBP"></span>
+                </div>
+                <div class="summary-invested">
+                    Invested: ₹<span id="investedAmount"></span>
+                </div>
+                <div class="summary-profit-loss">
+                    <span id="profitLoss" class="">
+                        <span id="profitLossText"></span>: ₹<span id="profitLossValue"></span> (<span id="percentChange"></span>%)
+                    </span>
+                </div>
             </div>
-          `;
+            <hr> <!-- Visual separator -->
+            <div id="portfolio-grid">
+                <!-- Cryptocurrency cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const investedINR = 15717.30;  // Your original investment in INR
+        let selectedCurrency = "inr"; // Default selected currency
+
+        // Define your portfolio with coin IDs (as per CoinGecko), symbol, and quantity
+        const portfolio = [
+            { id: "pepe", symbol: "PEPE", qty: 2882160.83 },
+            { id: "dogecoin", symbol: "DOGE", qty: 141.7146 },
+            { id: "solana", symbol: "SOL", qty: 0.145993 },
+            // NOTE: 'gigachad', 'moo-deng', 'official-melania-meme' might not be valid CoinGecko IDs
+            // or may be new/unlisted. Verify their exact IDs on CoinGecko if data is missing.
+            { id: "gigachad", symbol: "GIGACHAD", qty: 947.8754 },
+            { id: "shiba-inu", symbol: "SHIB", qty: 1623949.93 },
+            { id: "floki", symbol: "FLOKI", qty: 150989.31 },
+            { id: "ethereum", symbol: "ETH", qty: 0.00370366 },
+            { id: "bitcoin", symbol: "BTC", qty: 0.00006447 },
+            { id: "ethena", symbol: "ETHENA", qty: 10.0624 },
+            { id: "moo-deng", symbol: "MOO", qty: 6.8564 },
+            { id: "jupiter-exchange-solana", symbol: "JUP", qty: 2.2641 },
+            { id: "official-melania-meme", symbol: "MELANIA", qty: 1.392682 },
+            { id: "book-of-meme", symbol: "BOME", qty: 159.6902 },
+        ];
+
+        // Map currency codes to their symbols for display
+        const currencySymbols = {
+            usd: "$",
+            inr: "₹",
+            gbp: "£"
+        };
+
+        // Construct the API URL for CoinGecko
+        const ids = portfolio.map(p => p.id).join(",");
+        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,inr,gbp&include_24hr_change=true`;
+
+        // Function to update the last updated timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            document.getElementById("lastUpdated").textContent =
+                "Last updated: " + now.toLocaleTimeString() + " (updates every 30 seconds)";
+        }
+
+        // Function to fetch and display crypto prices
+        function fetchPrices() {
+            // Show loading message and hide content before fetching
+            document.getElementById("portfolio-loading").style.display = "block";
+            document.getElementById("portfolio-content").style.display = "none";
+
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) {
+                        // Handle HTTP errors, especially rate limits (429)
+                        if (res.status === 429) {
+                            throw new Error("API rate limit exceeded. Please wait a moment before trying again.");
+                        }
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    let cryptoCardsHtml = "";
+                    let totalUSD = 0, totalINR = 0, totalGBP = 0;
+
+                    portfolio.forEach(c => {
+                        const info = data[c.id];
+                        if (!info) {
+                            console.warn(`Could not find data for ${c.symbol} (ID: ${c.id}). It might be an invalid ID or not listed on CoinGecko.`);
+                            // Display a placeholder card for unavailable coins
+                            cryptoCardsHtml += `
+                                <div class="card">
+                                    <div class="row"><strong>${c.symbol}</strong> <span>${c.qty.toLocaleString(undefined, { maximumFractionDigits: 4 })} units</span></div>
+                                    <div class="row currency-value" style="color: var(--loss-color);">Data Unavailable</div>
+                                    <div class="row price-info">Verify ID or availability</div>
+                                </div>
+                            `;
+                            return; // Skip this coin for total calculations
+                        }
+
+                        // Get prices for all currencies
+                        const priceUSD = info.usd;
+                        const priceINR = info.inr;
+                        const priceGBP = info.gbp;
+                        const change = info.usd_24h_change;
+
+                        // Calculate values for all currencies
+                        const valueUSD = c.qty * priceUSD;
+                        const valueINR = c.qty * priceINR;
+                        const valueGBP = c.qty * priceGBP;
+
+                        // Add to total portfolio values
+                        totalUSD += valueUSD;
+                        totalINR += valueINR;
+                        totalGBP += valueGBP;
+
+                        // Determine class and sign for 24h change
+                        const changeClass = (change >= 0 ? "gain" : "loss") + " change-24h";
+                        const changeSign = change >= 0 ? "▲" : "▼";
+
+                        // Get the value and price for the currently selected currency
+                        let displayedValue;
+                        let displayedPrice;
+                        let displayedSymbol;
+
+                        switch (selectedCurrency) {
+                            case "inr":
+                                displayedValue = valueINR;
+                                displayedPrice = priceINR;
+                                displayedSymbol = currencySymbols.inr;
+                                break;
+                            case "usd":
+                                displayedValue = valueUSD;
+                                displayedPrice = priceUSD;
+                                displayedSymbol = currencySymbols.usd;
+                                break;
+                            case "gbp":
+                                displayedValue = valueGBP;
+                                displayedPrice = priceGBP;
+                                displayedSymbol = currencySymbols.gbp;
+                                break;
+                        }
+
+                        cryptoCardsHtml += `
+                            <div class="card">
+                                <div class="row"><strong>${c.symbol}</strong> <span>${c.qty.toLocaleString(undefined, { maximumFractionDigits: 4 })} units</span></div>
+                                <div class="row currency-value">
+                                    <span>${displayedSymbol} ${displayedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                </div>
+                                <div class="row price-info">
+                                    <span>Current Price: ${displayedSymbol} ${displayedPrice.toFixed(7)}</span>
+                                    <span class="${changeClass}">${changeSign} ${change?.toFixed(2) ?? "?"}% (24h)</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Calculate and display portfolio summary
+                    const profitLoss = totalINR - investedINR;
+                    const percentChange = ((profitLoss / investedINR) * 100).toFixed(2);
+                    const profitClass = profitLoss >= 0 ? "gain" : "loss";
+                    const profitText = profitLoss >= 0 ? "📈 Profit" : "📉 Loss";
+
+                    // Update summary elements directly (always show all 3 totals here)
+                    document.getElementById("totalUSD").textContent = `💵 $${totalUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("totalINR").textContent = `₹${totalINR.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById("totalGBP").textContent = `£${totalGBP.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+                    document.getElementById("investedAmount").textContent = investedINR.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById("profitLoss").className = profitClass; // Apply gain/loss class
+                    document.getElementById("profitLossText").textContent = profitText;
+                    document.getElementById("profitLossValue").textContent = profitLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    document.getElementById("percentChange").textContent = percentChange;
+
+
+                    // Insert generated crypto cards into the grid
+                    document.getElementById("portfolio-grid").innerHTML = cryptoCardsHtml;
+                    updateTimestamp();
+
+                    // Hide loading message and show content
+                    document.getElementById("portfolio-loading").style.display = "none";
+                    document.getElementById("portfolio-content").style.display = "block";
+                })
+                .catch(err => {
+                    // Display error message if fetch fails
+                    document.getElementById("portfolio-loading").innerHTML = `<p style="text-align:center;color:var(--loss-color);">Error fetching data. ${err.message}. Please check your internet connection or try again later.</p>`;
+                    document.getElementById("portfolio-loading").style.display = "block";
+                    document.getElementById("portfolio-content").style.display = "none";
+                    console.error("Fetch error:", err);
+                });
+        }
+
+        // Add event listeners to currency buttons
+        document.querySelectorAll('.currency-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove 'active' class from all buttons
+                document.querySelectorAll('.currency-button').forEach(btn => btn.classList.remove('active'));
+                // Add 'active' class to the clicked button
+                this.classList.add('active');
+                // Update selected currency and re-fetch/re-render
+                selectedCurrency = this.dataset.currency;
+                fetchPrices(); // Call fetchPrices to update display based on new currency
+            });
         });
 
-        const totalHTML = `<h2>Total Portfolio Value: $${totalValue.toFixed(2)}</h2>`;
-        document.getElementById("portfolio").innerHTML = totalHTML + html;
-      })
-      .catch(err => {
-        document.getElementById("portfolio").innerHTML = `<p style="text-align:center;color:red;">Failed to load data. Please try again later.</p>`;
-        console.error("Error fetching data:", err);
-      });
-  </script>
+        // Initial fetch when the page loads
+        fetchPrices();
+        // Set interval to fetch prices every 30 seconds
+        setInterval(fetchPrices, 30000);
+    </script>
 </body>
 </html>
