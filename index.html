@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Crypto Portfolio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: #e6edf3;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #58a6ff;
+    }
+
+    #portfolio {
+      display: grid;
+      gap: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .card {
+      background-color: #161b22;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      border: 1px solid #30363d;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #3fb950;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Crypto Portfolio</h1>
+  <div id="portfolio">Loading...</div>
+
+  <script>
+    const portfolio = [
+      { id: "bitcoin", symbol: "BTC", amount: 0.5 },
+      { id: "ethereum", symbol: "ETH", amount: 1.2 },
+      { id: "solana", symbol: "SOL", amount: 10 }
+    ];
+
+    const ids = portfolio.map(c => c.id).join(",");
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        let html = "";
+        let totalValue = 0;
+
+        portfolio.forEach(c => {
+          const info = data[c.id];
+          const currentPrice = info.usd;
+          const change = info.usd_24h_change;
+          const value = currentPrice * c.amount;
+          totalValue += value;
+
+          html += `
+            <div class="card">
+              <div>
+                <strong>${c.symbol}</strong><br>
+                ${c.amount} ${c.symbol}
+              </div>
+              <div>
+                $${value.toFixed(2)}<br>
+                ($${currentPrice.toFixed(2)} | ${change.toFixed(2)}%)
+              </div>
+            </div>
+          `;
+        });
+
+        const totalHTML = `<h2>Total Portfolio Value: $${totalValue.toFixed(2)}</h2>`;
+        document.getElementById("portfolio").innerHTML = totalHTML + html;
+      })
+      .catch(err => {
+        document.getElementById("portfolio").innerHTML = `<p style="text-align:center;color:red;">Failed to load data. Please try again later.</p>`;
+        console.error("Error fetching data:", err);
+      });
+  </script>
+</body>
+</html>
